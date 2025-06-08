@@ -1,9 +1,8 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
-import ProfileScreen from "./ProfileScreen";
-import MainScreen from "./MainScreen";
-import tw from "twrnc";
+import tw, { style } from "twrnc";
+import HomeScreen from "./HomeScreen";
+import SettingsScreen from "./Settings";
 
 export type RootStackParamList = {
   MainScreen: undefined;
@@ -18,18 +17,18 @@ export default function StackNavigator() {
     <Stack.Navigator>
       <Stack.Screen
         name="MainScreen"
-        component={MainScreen}
+        component={HomeScreen}
         options={{
           title: "Home",
           headerShown: true,
           headerStyle: tw`bg-white`,
-          headerTitleStyle: tw.style("text-[22px]"),
+          headerTitleStyle: style("text-[22px]"),
         }}
       />
 
       <Stack.Screen
         name="ProfileScreen"
-        component={ProfileScreen}
+        component={SettingsScreen}
         options={{
           headerShown: true,
           title: "Profile",

@@ -2,13 +2,11 @@ import React, { useEffect, useRef } from "react";
 import { View, StyleSheet, Animated } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import type { StackNavigationProp } from "@react-navigation/stack";
-// import ProfileScreen from "profile"
-// If you need to import ProfileScreen, ensure the path and usage are correct, otherwise remove this line if not used.
 
 type RootStackParamList = {
   IntroScreen: undefined;
-  ProfileScreen: undefined;
-  // add other screens here as needed
+  AppNavigator: undefined;
+  MainScreen: undefined;
 };
 
 const IntroScreen = () => {
@@ -19,13 +17,12 @@ const IntroScreen = () => {
     // Animate scale from 0 to 1
     Animated.timing(scaleAnim, {
       toValue: 1,
-      duration: 2000, // 2 seconds
+      duration: 2000,
       useNativeDriver: true,
     }).start();
 
-    // After 5 seconds, navigate to the next screen
     const timeout = setTimeout(() => {
-      navigation.navigate("ProfileScreen"); // Use the correct route name as defined in your navigator
+      navigation.navigate("AppNavigator");
     }, 5000);
 
     return () => clearTimeout(timeout);

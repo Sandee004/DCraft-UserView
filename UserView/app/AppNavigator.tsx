@@ -1,12 +1,11 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { NavigationContainer } from "@react-navigation/native";
+//import { NavigationContainer } from "@react-navigation/native";
 import { View, Text } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import tw from "twrnc";
 import StackNavigator from "./StackNavigator";
 import FavoriteScreen from "./FavoriteScreen";
-import ProfileScreen from "./ProfileScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -20,7 +19,7 @@ function CustomHeader() {
 
 export default function AppNavigator() {
   return (
-    <NavigationContainer>
+    <>
       <CustomHeader />
       <Tab.Navigator
         screenOptions={({ route }) => ({
@@ -56,9 +55,9 @@ export default function AppNavigator() {
             headerShown: false,
           }}
         />
-        <Tab.Screen name="Favorites" component={FavoriteScreen} />
-        <Tab.Screen name="Profile" component={ProfileScreen} />
+        <Tab.Screen name="Cart" component={FavoriteScreen} />
+        <Tab.Screen name="Profile" component={FavoriteScreen} />
       </Tab.Navigator>
-    </NavigationContainer>
+    </>
   );
 }
