@@ -1,8 +1,8 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import tw from "twrnc";
-import HomeScreen from "./HomeScreen";
-import ProductDetails from "./ProductDetails";
+import HomeScreen from "./screens/HomeScreen";
+import ProductDetails from "./screens/ProductDetails";
 
 export type Product = {
   id: number;
