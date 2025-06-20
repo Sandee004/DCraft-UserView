@@ -1,37 +1,49 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import tw, { style } from "twrnc";
+import tw from "twrnc";
 import HomeScreen from "./HomeScreen";
-import SettingsScreen from "./Settings";
+import ProductDetails from "./ProductDetails";
 
-export type RootStackParamList = {
-  MainScreen: undefined;
-  MovieDetailScreen: { movie: any };
-  ProfileScreen: undefined;
+export type Product = {
+  id: number;
+  title: string;
+  category: string;
+  price: number;
+  image?: string;
 };
 
-const Stack = createNativeStackNavigator<RootStackParamList>();
+export type HomeStackParamList = {
+  MainScreen: undefined;
+  ProductDetails: { product: Product };
+};
+
+const Stack = createNativeStackNavigator<HomeStackParamList>();
 
 export default function StackNavigator() {
   return (
-    <Stack.Navigator>
+    <Stack.Navigator
+      initialRouteName="MainScreen"
+      screenOptions={{
+        headerShown: false,
+      }}
+    >
       <Stack.Screen
         name="MainScreen"
         component={HomeScreen}
         options={{
-          title: "Home",
-          headerShown: true,
-          headerStyle: tw`bg-white`,
-          headerTitleStyle: style("text-[22px]"),
+          headerShown: false, // Hide header since CustomHeader is used
         }}
       />
 
       <Stack.Screen
-        name="ProfileScreen"
-        component={SettingsScreen}
+        name="ProductDetails"
+        component={ProductDetails}
         options={{
           headerShown: true,
-          title: "Profile",
+          title: "Product Details",
+          headerStyle: tw`bg-[#00008B]`,
+          headerTitleStyle: tw`text-[#F8F8FF] text-lg font-bold`,
+          headerTintColor: "#F8F8FF", // Back button color
         }}
       />
     </Stack.Navigator>
