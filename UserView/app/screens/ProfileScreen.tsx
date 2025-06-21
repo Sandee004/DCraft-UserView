@@ -4,14 +4,14 @@ import {
   Text,
   View,
   Alert,
-  Image,
   TouchableOpacity,
   TextInput,
   ActivityIndicator,
-  ScrollView,
 } from "react-native";
 import tw from "twrnc";
-import { FontAwesome } from "@expo/vector-icons";
+import { useCart } from "../context/CartContext";
+import Orders from "./Orders";
+import Profile from "./Profile";
 
 interface User {
   username: string;
@@ -38,9 +38,8 @@ export default function ProfileScreen() {
   const [activeTab, setActiveTab] = useState("profile");
   const [orders, setOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
-  const [profilePic, setProfilePic] = useState<string | null>(
-    user?.profile_picture || null
-  );
+  const [profilePic] = useState<string | null>(user?.profile_picture || null);
+  const { loadUserCart, clearUserCart } = useCart();
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -94,6 +93,19 @@ export default function ProfileScreen() {
     }
   };
 
+  useEffect(() => {
+    const initCart = async () => {
+      if (user) {
+        try {
+          await loadUserCart(); // Fetch cart items from the backend
+        } catch (error) {
+          console.error("Error loading user cart:", error);
+        }
+      }
+    };
+    initCart();
+  }, [user, loadUserCart]);
+
   const handleSignUp = async () => {
     if (!username || !email) {
       Alert.alert("Error", "Please fill in all fields");
@@ -127,6 +139,7 @@ export default function ProfileScreen() {
         );
         await AsyncStorage.setItem("token", data.access_token);
         setUser({ username, email, phone });
+        await loadUserCart(); // Load user's cart after successful login
         Alert.alert("Success", data.message || "Signed up successfully");
       } else {
         Alert.alert("Error", data.message || "Failed to sign up");
@@ -186,6 +199,7 @@ export default function ProfileScreen() {
   };
 
   const handleLogout = async () => {
+    await clearUserCart(); // Clear user's cart data
     await AsyncStorage.removeItem("user");
     await AsyncStorage.removeItem("token");
     setUser(null);
@@ -223,167 +237,6 @@ export default function ProfileScreen() {
         </Text>
       </TouchableOpacity>
     </View>
-  );
-
-  const renderOrders = () => (
-    <ScrollView style={tw`w-full`}>
-      {ordersLoading ? (
-        <View style={tw`items-center mt-10`}>
-          <ActivityIndicator size="large" color="#000080" />
-          <Text style={tw`text-gray-600 mt-2`}>Loading orders...</Text>
-        </View>
-      ) : orders.length > 0 ? (
-        orders.map((order) => (
-          <View
-            key={order.id}
-            style={tw`bg-white border border-gray-200 rounded-lg p-4 mb-3 shadow-sm`}
-          >
-            <View style={tw`flex-row justify-between items-start mb-2`}>
-              <Text style={tw`text-lg font-semibold text-black flex-1 mr-2`}>
-                {order.title}
-              </Text>
-              <Text style={tw`text-lg font-bold text-[#000080]`}>
-                ${order.price.toFixed(2)}
-              </Text>
-            </View>
-            <View style={tw`flex-row justify-between items-center`}>
-              <Text style={tw`text-gray-600`}>{order.date}</Text>
-              <View
-                style={tw`px-3 py-1 rounded-full ${
-                  order.status === "completed"
-                    ? "bg-green-100"
-                    : order.status === "pending"
-                    ? "bg-yellow-100"
-                    : "bg-red-100"
-                }`}
-              >
-                <Text
-                  style={tw`text-sm font-medium ${
-                    order.status === "completed"
-                      ? "text-green-800"
-                      : order.status === "pending"
-                      ? "text-yellow-800"
-                      : "text-red-800"
-                  }`}
-                >
-                  {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
-                </Text>
-              </View>
-            </View>
-          </View>
-        ))
-      ) : (
-        <View style={tw`items-center mt-10`}>
-          <FontAwesome name="shopping-cart" size={50} color="#ccc" />
-          <Text style={tw`text-gray-600 mt-4 text-lg`}>No orders yet</Text>
-          <Text style={tw`text-gray-400 mt-2 text-center`}>
-            Your orders will appear here once you make a purchase
-          </Text>
-        </View>
-      )}
-    </ScrollView>
-  );
-
-  const renderProfile = () => (
-    <>
-      {!isEditing ? (
-        <>
-          <TouchableOpacity style={tw`mb-4`}>
-            <Image
-              source={
-                profilePic
-                  ? { uri: profilePic }
-                  : require("../assets/profilepic.jpg")
-              }
-              style={tw`h-40 w-40 rounded-full border border-[#000080] border-4`}
-            />
-            <View
-              style={tw`absolute bottom-0 right-0 bg-red-500 p-2 rounded-full border-2 border-white`}
-            >
-              {loading ? (
-                <ActivityIndicator size="small" color="white" />
-              ) : (
-                <FontAwesome name="pencil" size={16} color="white" />
-              )}
-            </View>
-          </TouchableOpacity>
-
-          <Text style={tw`text-black text-2xl font-bold`}>
-            {user && user.username
-              ? user.username.charAt(0).toUpperCase() + user.username.slice(1)
-              : ""}
-          </Text>
-          <Text style={tw`text-black text-lg`}>
-            {user && user.email ? user.email : ""}
-          </Text>
-          <Text style={tw`text-black text-lg mb-4`}>
-            {user && user.phone ? user.phone : "No phone number"}
-          </Text>
-
-          <TouchableOpacity
-            style={tw`bg-[#B0E0E6] w-full py-3 rounded-md mb-4`}
-            onPress={() => setIsEditing(true)}
-          >
-            <Text style={tw`text-black text-lg text-center`}>
-              Update Details
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={tw`bg-red-500 w-full py-3 rounded-md`}
-            onPress={handleLogout}
-          >
-            <Text style={tw`text-white text-lg text-center`}>Log Out</Text>
-          </TouchableOpacity>
-        </>
-      ) : (
-        <>
-          <TextInput
-            style={tw`w-full bg-white text-black border border-[#000080] px-4 py-3 rounded-md mb-3`}
-            value={username}
-            onChangeText={setUsername}
-            placeholder="Username"
-          />
-          <TextInput
-            style={tw`w-full bg-white text-black border border-[#000080] px-4 py-3 rounded-md mb-3`}
-            value={email}
-            onChangeText={setEmail}
-            placeholder="Email"
-          />
-          <TextInput
-            style={tw`w-full bg-white text-black border border-[#000080] px-4 py-3 rounded-md mb-3`}
-            value={phone}
-            onChangeText={setPhone}
-            placeholder="Phone (Optional)"
-            keyboardType="phone-pad"
-          />
-          <View style={tw`flex flex-row justify-between w-full mt-2`}>
-            <TouchableOpacity
-              style={tw`bg-gray-600 py-3 w-[48%] rounded-md`}
-              onPress={() => setIsEditing(false)}
-              disabled={loading}
-            >
-              <Text style={tw`text-white text-lg text-center`}>Cancel</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={updateUser}
-              style={tw`py-3 w-[48%] rounded-md ${
-                loading ? "bg-gray-400" : "bg-[#000080]"
-              }`}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator size="small" color="white" />
-              ) : (
-                <Text style={tw`text-white text-lg text-center`}>
-                  Save Changes
-                </Text>
-              )}
-            </TouchableOpacity>
-          </View>
-        </>
-      )}
-    </>
   );
 
   if (!user) {
@@ -435,7 +288,25 @@ export default function ProfileScreen() {
     <View style={tw`flex-1 bg-white p-6`}>
       {renderTabs()}
       <View style={tw`flex-1 items-center`}>
-        {activeTab === "profile" ? renderProfile() : renderOrders()}
+        {activeTab === "profile" ? (
+          <Profile
+            user={user!}
+            username={username}
+            setUsername={setUsername}
+            email={email}
+            setEmail={setEmail}
+            phone={phone}
+            setPhone={setPhone}
+            profilePic={profilePic}
+            isEditing={isEditing}
+            setIsEditing={setIsEditing}
+            loading={loading}
+            handleLogout={handleLogout}
+            updateUser={updateUser}
+          />
+        ) : (
+          <Orders orders={orders} ordersLoading={ordersLoading} />
+        )}
       </View>
     </View>
   );
