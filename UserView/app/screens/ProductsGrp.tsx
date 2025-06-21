@@ -52,7 +52,7 @@ const ProductScreen: React.FC<ProductScreenProps> = ({
         }
 
         const data = await response.json();
-        console.log(data);
+
         const productsWithNumberId = data.results.map((product: any) => ({
           id: Number(product.id),
           title: product.title,
@@ -61,6 +61,7 @@ const ProductScreen: React.FC<ProductScreenProps> = ({
           image: product.image || undefined,
           quantity: 1,
         }));
+
         setProducts((prev) =>
           pageNumber === 1
             ? productsWithNumberId
@@ -79,13 +80,9 @@ const ProductScreen: React.FC<ProductScreenProps> = ({
   );
 
   useEffect(() => {
-    setPage(1); // reset page when search or category changes
+    setPage(1);
     fetchProducts(1);
   }, [fetchProducts, searchQuery, category]);
-
-  useEffect(() => {
-    console.log("Current products:", products); // Check what's in state
-  }, [products]);
 
   const loadMore = () => {
     if (page < totalPages) {
@@ -96,7 +93,6 @@ const ProductScreen: React.FC<ProductScreenProps> = ({
   };
 
   // Filter by search and category
-  //const filteredProducts = products;
   const filteredProducts = products.filter((product) => {
     const matchesQuery = product.title
       .toLowerCase()
@@ -108,7 +104,7 @@ const ProductScreen: React.FC<ProductScreenProps> = ({
   return (
     <View style={tw`flex-1 w-full px-2 py-4`}>
       {loading ? (
-        <ActivityIndicator size="large" color="#C8A2C8" />
+        <ActivityIndicator size="large" color="#000080" />
       ) : filteredProducts.length === 0 ? (
         <Text style={tw`text-center text-gray-500 mt-8`}>
           No products found.

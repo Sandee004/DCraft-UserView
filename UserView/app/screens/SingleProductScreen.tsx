@@ -1,6 +1,7 @@
-import { View, Text, Image, TouchableOpacity } from "react-native";
+import { View, Text, Image, TouchableOpacity, Alert } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useCart } from "../context/CartContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import tw from "twrnc";
 
 interface Product {
@@ -15,6 +16,38 @@ interface Product {
 const SingleProductScreen: React.FC<{ product: Product }> = ({ product }) => {
   const navigation = useNavigation();
   const { addToCart } = useCart();
+
+  const handleAddToCart = async () => {
+    try {
+      // Check if user is logged in
+      const storedUser = await AsyncStorage.getItem("user");
+      const token = await AsyncStorage.getItem("token");
+
+      if (!storedUser || !token) {
+        Alert.alert(
+          "Login Required",
+          "You need to be logged in to add items to cart",
+          [
+            {
+              text: "Cancel",
+              style: "cancel",
+            },
+            {
+              text: "Login",
+              onPress: () => (navigation as any).navigate("Profile"),
+            },
+          ]
+        );
+        return;
+      }
+
+      // User is logged in, add to cart
+      addToCart(product);
+    } catch (error) {
+      console.error("Error checking login status:", error);
+      Alert.alert("Error", "Something went wrong. Please try again.");
+    }
+  };
 
   return (
     <View style={tw`w-[48%] mb-4`}>
@@ -64,7 +97,7 @@ const SingleProductScreen: React.FC<{ product: Product }> = ({ product }) => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={() => addToCart(product)}
+              onPress={handleAddToCart}
               style={tw`w-10 bg-[#000080] py-1 rounded justify-center items-center`}
             >
               <Text style={tw`text-white text-center font-medium text-xl`}>
