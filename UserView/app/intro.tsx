@@ -42,7 +42,7 @@ const IntroScreen = () => {
   }, [fadeAnim, scaleAnim, slideAnim, navigation]);
 
   return (
-    <View style={tw`flex-1 bg-blue-500 justify-center items-center`}>
+    <View style={tw`flex-1 bg-[#000080] justify-center items-center`}>
       <Animated.View
         style={[
           tw`items-center`,

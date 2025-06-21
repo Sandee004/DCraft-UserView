@@ -1,6 +1,6 @@
 import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import tw from "twrnc";
+//import tw from "twrnc";
 import HomeScreen from "./screens/HomeScreen";
 import ProductDetails from "./screens/ProductDetails";
 
@@ -39,11 +39,11 @@ export default function StackNavigator() {
         name="ProductDetails"
         component={ProductDetails}
         options={{
-          headerShown: true,
-          title: "Product Details",
-          headerStyle: tw`bg-[#00008B]`,
-          headerTitleStyle: tw`text-[#F8F8FF] text-lg font-bold`,
-          headerTintColor: "#F8F8FF", // Back button color
+          headerShown: false,
+          //title: "Product Details",
+          //headerStyle: tw`bg-[#00008B]`,
+          //headerTitleStyle: tw`text-[#F8F8FF] text-lg font-bold`,
+          //headerTintColor: "#F8F8FF",
         }}
       />
     </Stack.Navigator>

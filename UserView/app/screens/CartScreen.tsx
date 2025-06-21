@@ -1,6 +1,6 @@
 import React from "react";
 import { View, Text, FlatList } from "react-native";
-import { useCart } from "./context/CartContext";
+import { useCart } from "../context/CartContext";
 import CartItem from "./CartItem";
 import tw from "twrnc";
 

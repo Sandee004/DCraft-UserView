@@ -1,6 +1,6 @@
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { useCart } from "./context/CartContext";
+import { useCart } from "../context/CartContext";
 import tw from "twrnc";
 
 interface Product {

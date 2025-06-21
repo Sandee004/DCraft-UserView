@@ -7,7 +7,7 @@ import tw from "twrnc";
 import StackNavigator from "./StackNavigator";
 import CartScreen from "./screens/CartScreen";
 import ProfileScreen from "./screens/ProfileScreen";
-import { CartProvider } from "./screens/context/CartContext";
+import { CartProvider } from "./context/CartContext";
 
 const Tab = createBottomTabNavigator();
 
