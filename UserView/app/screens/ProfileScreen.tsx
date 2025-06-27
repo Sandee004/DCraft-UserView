@@ -69,7 +69,10 @@ export default function ProfileScreen() {
     setOrdersLoading(true);
     try {
       const token = await AsyncStorage.getItem("token");
-      if (!token) return;
+      if (!token) {
+        console.log("No token found, cannot load orders");
+        return;
+      }
 
       const response = await fetch(
         "https://dcraft-backend.onrender.com/api/orders",
@@ -83,6 +86,7 @@ export default function ProfileScreen() {
       );
 
       const data = await response.json();
+      console.log("Orders: ", data);
       if (response.ok) {
         setOrders(data.orders || []);
       }
@@ -139,7 +143,7 @@ export default function ProfileScreen() {
         );
         await AsyncStorage.setItem("token", data.access_token);
         setUser({ username, email, phone });
-        await loadUserCart(); // Load user's cart after successful login
+        await loadUserCart();
         Alert.alert("Success", data.message || "Signed up successfully");
       } else {
         Alert.alert("Error", data.message || "Failed to sign up");
@@ -199,7 +203,7 @@ export default function ProfileScreen() {
   };
 
   const handleLogout = async () => {
-    await clearUserCart(); // Clear user's cart data
+    await clearUserCart();
     await AsyncStorage.removeItem("user");
     await AsyncStorage.removeItem("token");
     setUser(null);

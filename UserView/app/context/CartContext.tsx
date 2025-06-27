@@ -186,4 +186,4 @@ export const useCart = () => {
   return context;
 };
 
-export default CartContext; // at the bottom of CartContext.tsx
+export default CartContext;
