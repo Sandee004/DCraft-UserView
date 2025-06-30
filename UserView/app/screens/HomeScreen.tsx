@@ -5,20 +5,31 @@ import {
   TouchableOpacity,
   TextInput,
 } from "react-native";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ProductScreen from "./ProductsGrp";
 import tw from "twrnc";
 
 const HomeScreen = () => {
-  const categories = [
-    "All",
-    "Furniture",
-    "Accessories",
-    "Storage",
-    "Peripherals",
-  ];
-  const [searchQuery, setSearchQuery] = useState("");
+  const [categories, setCategories] = useState<string[]>(["All"]);
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const res = await fetch(
+          "https://dcraft-backend.onrender.com/categories"
+        );
+        const data = await res.json();
+        const categoryNames = data.map((cat: { name: string }) => cat.name);
+        setCategories(["All", ...categoryNames]);
+      } catch (err) {
+        console.error("Failed to fetch categories:", err);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   return (
     <View style={tw`flex-1 justify-center items-center py-5`}>
@@ -30,6 +41,7 @@ const HomeScreen = () => {
         style={tw`w-[90%] border border-gray-300 rounded-md px-4 py-2 mb-4`}
       />
 
+      {/* Horizontal Category List */}
       <View style={tw`flex w-full px-4 mb-6`}>
         <ScrollView
           horizontal
@@ -59,6 +71,8 @@ const HomeScreen = () => {
       <Text style={tw`text-lg text-gray-600 text-center leading-6`}>
         Products
       </Text>
+
+      {/* Product Display */}
       <ProductScreen searchQuery={searchQuery} category={selectedCategory} />
     </View>
   );
