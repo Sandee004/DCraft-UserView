@@ -1,4 +1,4 @@
-// Profile.tsx
+import React, { useEffect } from "react";
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   Image,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import tw from "twrnc";
 
 interface User {
@@ -16,6 +17,7 @@ interface User {
   phone?: string;
   profile_picture?: string;
 }
+
 interface ProfileProps {
   user: User;
   username: string;
@@ -47,8 +49,54 @@ export default function Profile({
   handleLogout,
   updateUser,
 }: ProfileProps) {
+  // Save user email to AsyncStorage when component mounts or user changes
+  useEffect(() => {
+    const saveUserEmail = async () => {
+      try {
+        await AsyncStorage.setItem("userEmail", user.email);
+        console.log("Email saved", AsyncStorage.getItem("userEmail"))
+      } catch (error) {
+        console.error("Error saving user email:", error);
+      }
+    };
+
+    if (user.email) {
+      saveUserEmail();
+    }
+  }, [user.email]);
+
+  // Enhanced updateUser function that also saves to AsyncStorage
+  const handleUpdateUser = async () => {
+    try {
+      await updateUser(); // Call the original updateUser function
+
+      // Save updated email to AsyncStorage
+      if (email) {
+        await AsyncStorage.setItem("userEmail", email);
+        console.log("Email saved updated", AsyncStorage.getItem("userEmail"))
+      }
+    } catch (error) {
+      console.error("Error updating user:", error);
+    }
+  };
+
+  // Enhanced logout function that clears AsyncStorage
+  const handleLogoutWithCleanup = async () => {
+    try {
+      // Clear user email from AsyncStorage
+      await AsyncStorage.removeItem("userEmail");
+
+      // Call the original logout function
+      handleLogout();
+    } catch (error) {
+      console.error("Error during logout cleanup:", error);
+      // Still call logout even if cleanup fails
+      handleLogout();
+    }
+  };
+
   return (
-    <>
+    <View style={tw`flex-1 items-center justify-start p-4 bg-white`}>
       {!isEditing ? (
         <>
           <TouchableOpacity style={tw`mb-4`}>
@@ -71,10 +119,10 @@ export default function Profile({
             </View>
           </TouchableOpacity>
 
-          <Text style={tw`text-black text-2xl font-bold`}>
+          <Text style={tw`text-black text-2xl font-bold mb-1`}>
             {user.username.charAt(0).toUpperCase() + user.username.slice(1)}
           </Text>
-          <Text style={tw`text-black text-lg`}>{user.email}</Text>
+          <Text style={tw`text-black text-lg mb-1`}>{user.email}</Text>
           <Text style={tw`text-black text-lg mb-4`}>
             {user.phone || "No phone number"}
           </Text>
@@ -89,7 +137,7 @@ export default function Profile({
           </TouchableOpacity>
           <TouchableOpacity
             style={tw`bg-red-500 w-full py-3 rounded-md`}
-            onPress={handleLogout}
+            onPress={handleLogoutWithCleanup}
           >
             <Text style={tw`text-white text-lg text-center`}>Log Out</Text>
           </TouchableOpacity>
@@ -127,7 +175,7 @@ export default function Profile({
               style={tw`py-3 w-[48%] rounded-md ${
                 loading ? "bg-gray-400" : "bg-[#000080]"
               }`}
-              onPress={updateUser}
+              onPress={handleUpdateUser}
               disabled={loading}
             >
               {loading ? (
@@ -141,6 +189,6 @@ export default function Profile({
           </View>
         </>
       )}
-    </>
+    </View>
   );
 }

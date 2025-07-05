@@ -68,9 +68,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
           }))
         );
       } else {
-        console.warn("Backend cart not loaded, using local storage");
-        const savedCart = await AsyncStorage.getItem("cartItems");
-        if (savedCart) setCartItems(JSON.parse(savedCart));
+        console.warn("Unable to load cart");
+        //const savedCart = await AsyncStorage.getItem("cartItems");
+        //if (savedCart) setCartItems(JSON.parse(savedCart));
       }
     } catch (error) {
       console.error("Error loading cart items:", error);

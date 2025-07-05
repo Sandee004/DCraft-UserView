@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import { WebView } from "react-native-webview";
 import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { CartStackParamList } from "../CartScreenNav";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import tw from "twrnc";
 
 type PaymentRouteProp = RouteProp<CartStackParamList, "PaymentScreen">;
@@ -25,10 +26,25 @@ export default function PaymentScreen() {
   const { total } = route.params;
 
   const [isVerifying, setIsVerifying] = useState(false);
+  const [userEmail, setUserEmail] = useState<string>("guest@example.com");
 
   const paystackPublicKey = "pk_test_801d9fcd35867aa5954878e6c700c0543a53c32b"; // Replace with your real one
-  //const { user } = useUser();
-  const email = "guest@example.com"; // fallback if needed
+
+  useEffect(() => {
+    const getUserEmail = async () => {
+      try {
+        const email = await AsyncStorage.getItem("userEmail");
+        if (email) {
+          setUserEmail(email);
+        }
+      } catch (error) {
+        console.error("Error getting user email:", error);
+      }
+    };
+    getUserEmail();
+  }, []);
+
+  const email = userEmail;
 
   const amountInKobo = total * 100;
 
