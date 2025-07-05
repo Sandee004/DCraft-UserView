@@ -2,7 +2,7 @@
 import React from "react";
 import { StripeProvider } from "@stripe/stripe-react-native";
 import { NavigationContainer } from "@react-navigation/native";
-import { CartProvider } from "./app/context/CartContext"; // <-- Import your CartProvider
+import { CartProvider } from "./app/context/CartContext";
 import IntroScreen from "./app/intro";
 
 export default function App() {
