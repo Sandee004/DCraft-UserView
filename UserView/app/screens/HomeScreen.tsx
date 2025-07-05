@@ -42,7 +42,7 @@ const HomeScreen = () => {
       />
 
       {/* Horizontal Category List */}
-      <View style={tw`flex w-full px-4 mb-6`}>
+      <View style={tw`flex w-full px-4 mb-4`}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}

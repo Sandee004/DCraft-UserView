@@ -43,6 +43,7 @@ const SingleProductScreen: React.FC<{ product: Product }> = ({ product }) => {
 
       // User is logged in, add to cart
       addToCart(product);
+      console.log("Added to cart");
     } catch (error) {
       console.error("Error checking login status:", error);
       Alert.alert("Error", "Something went wrong. Please try again.");
@@ -81,7 +82,7 @@ const SingleProductScreen: React.FC<{ product: Product }> = ({ product }) => {
               {product.title}
             </Text>
             <Text style={tw`text-[#000080] font-bold text-lg`}>
-              ${product.price}
+              ₦{product.price.toLocaleString()}
             </Text>
           </View>
 

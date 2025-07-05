@@ -39,7 +39,7 @@ const CartItem: React.FC<{ product: Product }> = ({ product }) => {
           {product.title}
         </Text>
         <Text style={tw`text-[#000080] font-bold text-base`}>
-          ${product.price}
+          ₦{product.price.toLocaleString()}
         </Text>
       </View>
 

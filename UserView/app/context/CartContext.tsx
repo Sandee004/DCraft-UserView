@@ -53,7 +53,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         if (savedCart) setCartItems(JSON.parse(savedCart));
         return;
       }
-
       const response = await fetch(BACKEND_URL, {
         headers: { Authorization: `Bearer ${token}` },
       });

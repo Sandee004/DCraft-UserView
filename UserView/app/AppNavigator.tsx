@@ -5,9 +5,9 @@ import { View, Text } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import tw from "twrnc";
 import StackNavigator from "./StackNavigator";
-import CartScreen from "./screens/CartScreen";
 import ProfileScreen from "./screens/ProfileScreen";
 import { CartProvider } from "./context/CartContext";
+import CartScreenNav from "./CartScreenNav";
 
 const Tab = createBottomTabNavigator();
 
@@ -62,7 +62,7 @@ export default function AppNavigator() {
           />
           <Tab.Screen
             name="Cart"
-            component={CartScreen}
+            component={CartScreenNav}
             options={{
               headerShown: false,
             }}
