@@ -6,10 +6,11 @@ import {
   Alert,
   TouchableOpacity,
   TextInput,
+  SafeAreaView,
   ActivityIndicator,
 } from "react-native";
 import tw from "twrnc";
-import { useCart } from "../context/CartContext";
+import { useCart } from "../../components/CartContext";
 import Orders from "./Orders";
 import Profile from "./Profile";
 
@@ -289,29 +290,35 @@ export default function ProfileScreen() {
   }
 
   return (
-    <View style={tw`flex-1 bg-white p-6`}>
-      {renderTabs()}
-      <View style={tw`flex-1 items-center`}>
-        {activeTab === "profile" ? (
-          <Profile
-            user={user!}
-            username={username}
-            setUsername={setUsername}
-            email={email}
-            setEmail={setEmail}
-            phone={phone}
-            setPhone={setPhone}
-            profilePic={profilePic}
-            isEditing={isEditing}
-            setIsEditing={setIsEditing}
-            loading={loading}
-            handleLogout={handleLogout}
-            updateUser={updateUser}
-          />
-        ) : (
-          <Orders orders={orders} ordersLoading={ordersLoading} />
-        )}
+    <SafeAreaView style={tw`flex-1 bg-white`}>
+      <View style={tw`bg-[#000080] py-4 px-5`}>
+        <Text style={tw`text-white text-xl font-bold`}>Profile</Text>
       </View>
-    </View>
+
+      <View style={tw`flex-1 bg-white p-6`}>
+        {renderTabs()}
+        <View style={tw`flex-1 items-center`}>
+          {activeTab === "profile" ? (
+            <Profile
+              user={user!}
+              username={username}
+              setUsername={setUsername}
+              email={email}
+              setEmail={setEmail}
+              phone={phone}
+              setPhone={setPhone}
+              profilePic={profilePic}
+              isEditing={isEditing}
+              setIsEditing={setIsEditing}
+              loading={loading}
+              handleLogout={handleLogout}
+              updateUser={updateUser}
+            />
+          ) : (
+            <Orders orders={orders} ordersLoading={ordersLoading} />
+          )}
+        </View>
+      </View>
+    </SafeAreaView>
   );
 }

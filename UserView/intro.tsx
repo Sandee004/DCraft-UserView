@@ -1,16 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { View, Text, Animated } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import type { StackNavigationProp } from "@react-navigation/stack";
 import tw from "twrnc";
 
-type RootStackParamList = {
-  IntroScreen: undefined;
-  AppNavigator: undefined;
-};
-
-const IntroScreen = () => {
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
+export default function Intro() {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.5)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
@@ -33,16 +25,10 @@ const IntroScreen = () => {
         useNativeDriver: true,
       }),
     ]).start();
-
-    const timeout = setTimeout(() => {
-      navigation.replace("AppNavigator");
-    }, 3000);
-
-    return () => clearTimeout(timeout);
-  }, [fadeAnim, scaleAnim, slideAnim, navigation]);
+  });
 
   return (
-    <View style={tw`flex-1 bg-[#000080] justify-center items-center`}>
+    <View style={tw`flex-1 bg-blue-900 justify-center items-center`}>
       <Animated.View
         style={[
           tw`items-center`,
@@ -59,6 +45,4 @@ const IntroScreen = () => {
       </Animated.View>
     </View>
   );
-};
-
-export default IntroScreen;
+}

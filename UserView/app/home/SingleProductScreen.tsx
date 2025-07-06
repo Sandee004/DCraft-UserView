@@ -1,6 +1,6 @@
 import { View, Text, Image, TouchableOpacity, Alert } from "react-native";
-import { useNavigation } from "@react-navigation/native";
-import { useCart } from "../context/CartContext";
+import { useRouter } from "expo-router";
+import { useCart } from "../../components/CartContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import tw from "twrnc";
 
@@ -14,7 +14,7 @@ interface Product {
 }
 
 const SingleProductScreen: React.FC<{ product: Product }> = ({ product }) => {
-  const navigation = useNavigation();
+  const router = useRouter();
   const { addToCart } = useCart();
 
   const handleAddToCart = async () => {
@@ -34,7 +34,7 @@ const SingleProductScreen: React.FC<{ product: Product }> = ({ product }) => {
             },
             {
               text: "Login",
-              onPress: () => (navigation as any).navigate("Profile"),
+              onPress: () => router.push("/profile"),
             },
           ]
         );
@@ -90,7 +90,16 @@ const SingleProductScreen: React.FC<{ product: Product }> = ({ product }) => {
           <View style={tw`flex-row mt-2 gap-2 items-center`}>
             <TouchableOpacity
               onPress={() =>
-                (navigation as any).navigate("ProductDetails", { product })
+                router.push({
+                  pathname: "/home/ProductDetails",
+                  params: {
+                    id: product.id.toString(), // ❗️strings only – Expo Router stores params as strings
+                    title: product.title,
+                    category: product.category,
+                    price: product.price.toString(),
+                    image: product.image ?? "",
+                  },
+                })
               }
               style={tw`flex-1 bg-[#000080] py-2  rounded`}
             >

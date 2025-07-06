@@ -8,27 +8,18 @@ import {
   TouchableOpacity,
 } from "react-native";
 import { WebView } from "react-native-webview";
-import { useRoute, useNavigation, RouteProp } from "@react-navigation/native";
-import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { CartStackParamList } from "../CartScreenNav";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import tw from "twrnc";
 
-type PaymentRouteProp = RouteProp<CartStackParamList, "PaymentScreen">;
-type NavigationProp = NativeStackNavigationProp<
-  CartStackParamList,
-  "PaymentScreen"
->;
-
 export default function PaymentScreen() {
-  const route = useRoute<PaymentRouteProp>();
-  const navigation = useNavigation<NavigationProp>();
-  const { total } = route.params;
-
+  const router = useRouter();
+  const { total } = useLocalSearchParams<{ total: string }>(); // comes as string
   const [isVerifying, setIsVerifying] = useState(false);
   const [userEmail, setUserEmail] = useState<string>("guest@example.com");
 
   const paystackPublicKey = "pk_test_801d9fcd35867aa5954878e6c700c0543a53c32b"; // Replace with your real one
+  const BACKEND_URL = "https://dcraft-backend.onrender.com";
 
   useEffect(() => {
     const getUserEmail = async () => {
@@ -44,18 +35,13 @@ export default function PaymentScreen() {
     getUserEmail();
   }, []);
 
-  const email = userEmail;
-
-  const amountInKobo = total * 100;
-
-  const BACKEND_URL = "https://dcraft-backend.onrender.com";
+  const amountInKobo = Number(total) * 100;
 
   const handlePaymentResponse = async (data: any) => {
     const event = JSON.parse(data);
 
     if (event.event === "successful") {
       const reference = event.reference;
-
       setIsVerifying(true);
 
       try {
@@ -69,7 +55,7 @@ export default function PaymentScreen() {
             "✅ Payment Successful",
             "Thank you! Your order was confirmed."
           );
-          navigation.navigate("CartScreen");
+          router.replace("/cart"); // or wherever your cart screen is
         } else {
           Alert.alert(
             "❌ Verification Failed",
@@ -86,7 +72,7 @@ export default function PaymentScreen() {
       }
     } else if (event.event === "cancelled") {
       Alert.alert("Payment Cancelled", "You cancelled the transaction.");
-      navigation.goBack();
+      router.back();
     }
   };
 
@@ -102,7 +88,7 @@ export default function PaymentScreen() {
           function payWithPaystack(){
             var handler = PaystackPop.setup({
               key: '${paystackPublicKey}',
-              email: '${email}',
+              email: '${userEmail}',
               amount: ${amountInKobo},
               currency: 'NGN',
               callback: function(response){
@@ -129,7 +115,7 @@ export default function PaymentScreen() {
         style={tw`px-4 py-3 border-b border-gray-200 flex-row items-center justify-between`}
       >
         <Text style={tw`text-lg font-bold text-black`}>Payment</Text>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
+        <TouchableOpacity onPress={() => router.back()}>
           <Text style={tw`text-blue-700 text-base`}>Cancel</Text>
         </TouchableOpacity>
       </View>

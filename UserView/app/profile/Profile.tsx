@@ -54,7 +54,7 @@ export default function Profile({
     const saveUserEmail = async () => {
       try {
         await AsyncStorage.setItem("userEmail", user.email);
-        console.log("Email saved", AsyncStorage.getItem("userEmail"))
+        console.log("Email saved", AsyncStorage.getItem("userEmail"));
       } catch (error) {
         console.error("Error saving user email:", error);
       }
@@ -73,7 +73,7 @@ export default function Profile({
       // Save updated email to AsyncStorage
       if (email) {
         await AsyncStorage.setItem("userEmail", email);
-        console.log("Email saved updated", AsyncStorage.getItem("userEmail"))
+        console.log("Email saved updated", AsyncStorage.getItem("userEmail"));
       }
     } catch (error) {
       console.error("Error updating user:", error);
@@ -90,13 +90,12 @@ export default function Profile({
       handleLogout();
     } catch (error) {
       console.error("Error during logout cleanup:", error);
-      // Still call logout even if cleanup fails
       handleLogout();
     }
   };
 
   return (
-    <View style={tw`flex-1 items-center justify-start p-4 bg-white`}>
+    <View style={tw`flex-1 items-center bg-white justify-start p-4 w-full`}>
       {!isEditing ? (
         <>
           <TouchableOpacity style={tw`mb-4`}>

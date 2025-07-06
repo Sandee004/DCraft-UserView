@@ -34,7 +34,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   const [cartItems, setCartItems] = useState<Product[]>([]);
 
   useEffect(() => {
-    // Save local cache
     AsyncStorage.setItem("cartItems", JSON.stringify(cartItems)).catch(
       (error) => console.error("Error saving cart items:", error)
     );
@@ -47,30 +46,47 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   const loadUserCart = useCallback(async () => {
     try {
       const token = await getToken();
+
       if (!token) {
-        // Fallback to local cart
         const savedCart = await AsyncStorage.getItem("cartItems");
-        if (savedCart) setCartItems(JSON.parse(savedCart));
+        if (savedCart) {
+          try {
+            const parsed = JSON.parse(savedCart);
+            if (Array.isArray(parsed)) {
+              setCartItems(parsed);
+            } else {
+              console.warn("Stored cart is not an array:", parsed);
+            }
+          } catch (parseError) {
+            console.error("Failed to parse local cart:", parseError);
+          }
+        }
         return;
       }
+
       const response = await fetch(BACKEND_URL, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setCartItems(
-          data.cart_items.map((item: any) => ({
-            id: item.id,
-            title: item.title,
-            price: item.price,
-            quantity: item.quantity,
-          }))
-        );
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.warn("Unable to load cart from server:", errorText);
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.cart_items && Array.isArray(data.cart_items)) {
+        const mapped = data.cart_items.map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          price: item.price,
+          quantity: item.quantity,
+          image: item.image,
+        }));
+        setCartItems(mapped);
       } else {
-        console.warn("Unable to load cart");
-        //const savedCart = await AsyncStorage.getItem("cartItems");
-        //if (savedCart) setCartItems(JSON.parse(savedCart));
+        console.warn("Unexpected cart_items format from server:", data);
       }
     } catch (error) {
       console.error("Error loading cart items:", error);
@@ -84,7 +100,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   const addToCart = async (product: Product) => {
     const token = await getToken();
     if (token) {
-      // Backend request
       await fetch(BACKEND_URL, {
         method: "POST",
         headers: {
@@ -92,10 +107,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ product_id: product.id, quantity: 1 }),
-      }).catch((error) => console.error(error));
+      }).catch((error) => console.error("Error adding to cart:", error));
       await loadUserCart();
     } else {
-      // Offline/local add
       setCartItems((prev) => {
         const existing = prev.find((item) => item.id === product.id);
         if (existing) {
@@ -119,8 +133,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ quantity: -1 }), // We'll decrement by one
-      }).catch((error) => console.error(error));
+        body: JSON.stringify({ quantity: -1 }),
+      }).catch((error) => console.error("Error decreasing cart item:", error));
       await loadUserCart();
     } else {
       setCartItems((prev) =>
@@ -139,7 +153,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       await fetch(`${BACKEND_URL}/${id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
-      }).catch((error) => console.error(error));
+      }).catch((error) => console.error("Error removing from cart:", error));
       await loadUserCart();
     } else {
       setCartItems((prev) => prev.filter((item) => item.id !== id));
@@ -152,7 +166,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       await fetch(`${BACKEND_URL}/clear`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
-      }).catch((error) => console.error(error));
+      }).catch((error) => console.error("Error clearing cart:", error));
     }
     setCartItems([]);
     await AsyncStorage.removeItem("cartItems");
