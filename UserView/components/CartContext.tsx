@@ -13,7 +13,7 @@ interface Product {
   id: number;
   title: string;
   price: number;
-  image?: string;
+  product_images?: string;
   quantity: number;
 }
 
@@ -108,7 +108,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
           title: item.title,
           price: item.price,
           quantity: item.quantity,
-          image: item.image,
+          product_images: item.product_images,
         }));
         setCartItems(mapped);
       } else {

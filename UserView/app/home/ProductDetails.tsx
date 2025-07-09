@@ -158,8 +158,10 @@ export default function ProductDetails() {
         </Text>
 
         <View style={tw`my-3`}>
-          <Text style={tw`mb-2 text-black text-[16px]`}>Description</Text>
-          <Text style={tw`text-gray-700 text-base leading-6`}>
+          <Text style={tw`mb-2 text-black font-semibold text-[20px]`}>
+            Description
+          </Text>
+          <Text style={tw`text-gray-600 text-base leading-6`}>
             {product.description || "No description provided."}
           </Text>
         </View>
