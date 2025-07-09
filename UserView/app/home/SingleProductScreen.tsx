@@ -9,7 +9,7 @@ interface Product {
   title: string;
   category: string;
   price: number;
-  image?: string;
+  product_images?: string;
   quantity: number;
 }
 
@@ -57,9 +57,9 @@ const SingleProductScreen: React.FC<{ product: Product }> = ({ product }) => {
       >
         {/* Image */}
         <View style={tw`h-3/5 bg-gray-200`}>
-          {product.image ? (
+          {product.product_images ? (
             <Image
-              source={{ uri: product.image }}
+              source={{ uri: product.product_images?.[0] }}
               style={tw`w-full h-full`}
               resizeMode="cover"
             />
@@ -93,11 +93,11 @@ const SingleProductScreen: React.FC<{ product: Product }> = ({ product }) => {
                 router.push({
                   pathname: "/home/ProductDetails",
                   params: {
-                    id: product.id.toString(), // ❗️strings only – Expo Router stores params as strings
+                    id: product.id.toString(),
                     title: product.title,
                     category: product.category,
                     price: product.price.toString(),
-                    image: product.image ?? "",
+                    image: product.product_images?.[0] ?? "",
                   },
                 })
               }

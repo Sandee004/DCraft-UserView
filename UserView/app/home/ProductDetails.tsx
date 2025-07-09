@@ -4,11 +4,15 @@ import {
   Text,
   Image,
   ScrollView,
+  TouchableOpacity,
+  Alert,
   ActivityIndicator,
   SafeAreaView,
 } from "react-native";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import tw from "twrnc";
+import { useCart } from "../../components/CartContext";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type Product = {
   id: number;
@@ -17,7 +21,7 @@ type Product = {
   price: number;
   description: string;
   stock: number;
-  image?: string;
+  product_images?: string;
 };
 
 export default function ProductDetails() {
@@ -25,6 +29,8 @@ export default function ProductDetails() {
   const [product, setProduct] = useState<Product | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const { addToCart } = useCart();
 
   useEffect(() => {
     if (!id) {
@@ -58,6 +64,45 @@ export default function ProductDetails() {
     fetchProduct();
   }, [id]);
 
+  const handleAddToCart = async () => {
+    try {
+      // Check if user is logged in
+      const storedUser = await AsyncStorage.getItem("user");
+      const token = await AsyncStorage.getItem("token");
+
+      if (!storedUser || !token) {
+        Alert.alert(
+          "Login Required",
+          "You need to be logged in to add items to cart",
+          [
+            {
+              text: "Cancel",
+              style: "cancel",
+            },
+            {
+              text: "Login",
+              onPress: () => router.push("/profile"),
+            },
+          ]
+        );
+        return;
+      }
+
+      // Ensure product is not null before adding to cart
+      if (!product) {
+        Alert.alert("Error", "Product details are missing.");
+        return;
+      }
+
+      // User is logged in, add to cart
+      addToCart({ ...product, quantity: 1 });
+      console.log("Added to cart");
+    } catch (error) {
+      console.error("Error checking login status:", error);
+      Alert.alert("Error", "Something went wrong. Please try again.");
+    }
+  };
+
   if (loading) {
     return (
       <View style={tw`flex-1 justify-center items-center`}>
@@ -83,29 +128,50 @@ export default function ProductDetails() {
       </View>
 
       <ScrollView style={tw`bg-white flex-1 p-4`}>
-        {product.image ? (
-          <Image
-            source={{ uri: product.image }}
-            style={tw`w-full h-64 mb-4 bg-gray-200 rounded`}
-            resizeMode="cover"
-          />
+        {Array.isArray(product.product_images) &&
+        product.product_images.length > 0 ? (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={tw`mb-4`}
+          >
+            {product.product_images.map((img, index) => (
+              <Image
+                key={index}
+                source={{ uri: img }}
+                style={tw`w-72 h-64 mr-3 rounded bg-gray-200`}
+                resizeMode="cover"
+              />
+            ))}
+          </ScrollView>
         ) : (
           <View
             style={tw`w-full h-64 mb-4 bg-gray-200 rounded justify-center items-center`}
           >
-            <Text style={tw`text-gray-500`}>No image available</Text>
+            <Text style={tw`text-gray-500`}>No images available</Text>
           </View>
         )}
 
-        <Text style={tw`text-xl font-bold mb-2`}>{product.title}</Text>
-        <Text style={tw`text-gray-500 mb-2`}>{product.category}</Text>
-        <Text style={tw`text-green-600 text-lg mb-2`}>
+        <Text style={tw`text-lg font-semibold mb-2`}>{product.title}</Text>
+        <Text style={tw`text-[#000080] text-2xl font-bold mb-2`}>
           ₦{Number(product.price).toLocaleString()}
         </Text>
-        <Text style={tw`text-gray-700 mb-2`}>Stock: {product.stock}</Text>
-        <Text style={tw`text-black text-base leading-6`}>
-          {product.description || "No description provided."}
-        </Text>
+
+        <View style={tw`my-3`}>
+          <Text style={tw`mb-2 text-black text-[16px]`}>Description</Text>
+          <Text style={tw`text-gray-700 text-base leading-6`}>
+            {product.description || "No description provided."}
+          </Text>
+        </View>
+
+        <TouchableOpacity
+          onPress={handleAddToCart}
+          style={tw`w-full mt-5 bg-[#000080] py-2 rounded justify-center items-center`}
+        >
+          <Text style={tw`text-white text-center font-medium text-xl`}>
+            Add to Cart
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );

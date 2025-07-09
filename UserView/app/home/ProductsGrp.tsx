@@ -9,7 +9,7 @@ interface Product {
   category: string;
   price: number;
   quantity: number;
-  image?: string;
+  product_images?: string;
 }
 
 interface ProductScreenProps {
@@ -46,7 +46,7 @@ const ProductScreen: React.FC<ProductScreenProps> = ({
           title: product.title,
           price: product.price,
           category: product.category,
-          image: product.image || undefined,
+          product_images: product.product_images || undefined,
           quantity: 1,
         }));
 

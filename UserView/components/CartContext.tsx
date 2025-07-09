@@ -5,7 +5,9 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
+import { Alert } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useRouter } from "expo-router";
 
 interface Product {
   id: number;
@@ -32,6 +34,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [cartItems, setCartItems] = useState<Product[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     AsyncStorage.setItem("cartItems", JSON.stringify(cartItems)).catch(
@@ -69,8 +72,31 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       });
 
       if (!response.ok) {
-        const errorText = await response.text();
-        console.warn("Unable to load cart from server:", errorText);
+        let errorMessage = "Unknown error";
+
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData?.message || errorMessage;
+
+          // Handle specific "User not found" error
+          if (errorMessage === "User not found") {
+            Alert.alert(
+              "Login Required",
+              "Your session may have expired. Please log in or sign up to access your cart.",
+              [
+                { text: "Cancel", style: "cancel" },
+                {
+                  text: "Login",
+                  onPress: () => router.push("/profile"),
+                },
+              ]
+            );
+          }
+        } catch {
+          console.warn("Unable to parse error response as JSON.");
+        }
+
+        console.warn("Unable to load cart from server:", errorMessage);
         return;
       }
 
@@ -91,11 +117,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error) {
       console.error("Error loading cart items:", error);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  useEffect(() => {
-    loadUserCart();
-  }, [loadUserCart]);
 
   const addToCart = async (product: Product) => {
     const token = await getToken();

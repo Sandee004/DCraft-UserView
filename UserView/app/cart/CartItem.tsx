@@ -7,7 +7,7 @@ interface Product {
   id: number;
   title: string;
   price: number;
-  image?: string;
+  product_images?: string;
   quantity: number;
 }
 
@@ -20,9 +20,9 @@ const CartItem: React.FC<{ product: Product }> = ({ product }) => {
     >
       {/* Product image */}
       <View style={tw`w-16 h-16 mr-3 bg-gray-100 rounded overflow-hidden`}>
-        {product.image ? (
+        {product.product_images ? (
           <Image
-            source={{ uri: product.image }}
+            source={{ uri: product.product_images?.[0] }}
             style={tw`w-16 h-16`}
             resizeMode="cover"
           />
