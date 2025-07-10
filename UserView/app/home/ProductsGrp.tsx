@@ -47,7 +47,7 @@ const ProductScreen: React.FC<ProductScreenProps> = ({
           price: product.price,
           category: product.category,
           product_images: product.product_images || undefined,
-          quantity: 1,
+          quantity: product.stock,
         }));
 
         setProducts(productsWithNumberId);

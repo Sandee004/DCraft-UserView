@@ -42,18 +42,18 @@ export default function Orders({ orders, ordersLoading }: OrdersProps) {
               <Text style={tw`text-gray-600`}>{order.date}</Text>
               <View
                 style={tw`px-3 py-1 rounded-full ${
-                  order.status === "completed"
+                  order.status === "delivered"
                     ? "bg-green-100"
-                    : order.status === "pending"
+                    : order.status === "shipped"
                     ? "bg-yellow-100"
                     : "bg-red-100"
                 }`}
               >
                 <Text
                   style={tw`text-sm font-medium ${
-                    order.status === "completed"
+                    order.status === "delivered"
                       ? "text-green-800"
-                      : order.status === "pending"
+                      : order.status === "shipped"
                       ? "text-yellow-800"
                       : "text-red-800"
                   }`}

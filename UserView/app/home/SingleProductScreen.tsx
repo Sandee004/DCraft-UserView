@@ -106,14 +106,24 @@ const SingleProductScreen: React.FC<{ product: Product }> = ({ product }) => {
               <Text style={tw`text-white text-center font-medium`}>View</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={handleAddToCart}
-              style={tw`w-10 bg-[#000080] py-1 rounded justify-center items-center`}
-            >
-              <Text style={tw`text-white text-center font-medium text-xl`}>
-                +
-              </Text>
-            </TouchableOpacity>
+            {product.quantity > 0 ? (
+              <TouchableOpacity
+                onPress={handleAddToCart}
+                style={tw`w-10 bg-[#000080] py-1 rounded justify-center items-center`}
+              >
+                <Text style={tw`text-white text-center font-medium text-xl`}>
+                  +
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <View
+                style={tw`w-10 bg-gray-300 py-2 rounded justify-center items-center`}
+              >
+                <Text style={tw`text-white text-center font-medium text-xs`}>
+                  ❌
+                </Text>
+              </View>
+            )}
           </View>
         </View>
       </View>
