@@ -61,7 +61,7 @@ const CartItem: React.FC<{ product: Product }> = ({ product }) => {
           style={[tw`px-2 py-1 rounded bg-[#000080]`]}
         >
           <Text
-            style={tw`font-bold text-xl text-white"
+            style={tw`font-bold text-xl text-white
             `}
           >
             +

@@ -21,33 +21,46 @@ export default function PaymentScreen() {
   const paystackPublicKey = "pk_test_801d9fcd35867aa5954878e6c700c0543a53c32b"; // Replace with your real one
   const BACKEND_URL = "https://dcraft-backend.onrender.com";
 
+  const generateReference = () => {
+    return `dcraft_${Date.now()}`;
+  };
+
+  const [reference, setReference] = useState("");
+
+  useEffect(() => {
+    const ref = generateReference();
+    setReference(ref);
+  }, []);
+
   useEffect(() => {
     const createOrder = async () => {
       try {
         const token = await AsyncStorage.getItem("token");
-        const response = await fetch(`${BACKEND_URL}/api/orders`, {
+        const res = await fetch(`${BACKEND_URL}/api/orders`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          // You can also manually send `items` if needed
+          body: JSON.stringify({ reference }), // 👈 attach the reference
         });
 
-        const result = await response.json();
-        if (!response.ok) {
-          Alert.alert("Error", result.message || "Failed to create order");
+        const result = await res.json();
+        if (!res.ok) {
+          Alert.alert("Error", result.message || "Could not create order");
           router.back();
         }
       } catch (error) {
-        console.error("Error creating order:", error);
-        Alert.alert("Error", "Could not create order");
+        console.error("Order creation failed", error);
+        Alert.alert("Error", "Order creation failed");
         router.back();
       }
     };
 
-    createOrder();
-  }, [router]);
+    if (reference) {
+      createOrder();
+    }
+  }, [reference, router]);
 
   useEffect(() => {
     const getUserEmail = async () => {
@@ -119,6 +132,7 @@ export default function PaymentScreen() {
               email: '${userEmail}',
               amount: ${amountInKobo},
               currency: 'NGN',
+              reference: '${reference}',
               callback: function(response){
                 window.ReactNativeWebView.postMessage(JSON.stringify({
                   event: 'successful',
