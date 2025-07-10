@@ -139,10 +139,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 
         if (!res.ok) {
           const errorData = await res.json();
-          console.warn("❌ Add to cart failed:", errorData);
+          console.warn(
+            "❌ Failed to add to cart:",
+            errorData.message || "Unknown error"
+          );
           return;
         }
-
         await loadUserCart();
       } catch (error) {
         console.error("🚨 Error adding to cart:", error);

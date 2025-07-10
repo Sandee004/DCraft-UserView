@@ -166,24 +166,14 @@ export default function ProductDetails() {
           </Text>
         </View>
 
-        {product.stock > 0 ? (
-          <TouchableOpacity
-            onPress={handleAddToCart}
-            style={tw`w-full mt-5 bg-[#000080] py-2 rounded justify-center items-center`}
-          >
-            <Text style={tw`text-white text-center font-medium text-xl`}>
-              Add to Cart
-            </Text>
-          </TouchableOpacity>
-        ) : (
-          <View
-            style={tw`w-full mt-5 bg-gray-400 py-2 rounded justify-center items-center`}
-          >
-            <Text style={tw`text-white text-center font-medium text-xl`}>
-              Out of Stock
-            </Text>
-          </View>
-        )}
+        <TouchableOpacity
+          onPress={handleAddToCart}
+          style={tw`w-full mt-5 bg-[#000080] py-2 rounded justify-center items-center`}
+        >
+          <Text style={tw`text-white text-center font-medium text-xl`}>
+            Add to Cart
+          </Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );

@@ -9,14 +9,10 @@ interface Product {
   price: number;
   product_images?: string;
   quantity: number;
-  available_stock: number;
 }
 
 const CartItem: React.FC<{ product: Product }> = ({ product }) => {
   const { addToCart, decreaseFromCart } = useCart();
-
-  const isOutOfStock = product.available_stock <= 0;
-  const isAtMax = product.quantity >= product.available_stock;
 
   return (
     <View
@@ -45,15 +41,6 @@ const CartItem: React.FC<{ product: Product }> = ({ product }) => {
         <Text style={tw`text-[#000080] font-bold text-base`}>
           ₦{product.price.toLocaleString()}
         </Text>
-
-        {/* Stock status */}
-        {isOutOfStock ? (
-          <Text style={tw`text-red-500 text-xs mt-1`}>Out of stock</Text>
-        ) : isAtMax ? (
-          <Text style={tw`text-yellow-600 text-xs mt-1`}>
-            Max available in cart
-          </Text>
-        ) : null}
       </View>
 
       {/* Quantity controls */}
@@ -71,16 +58,11 @@ const CartItem: React.FC<{ product: Product }> = ({ product }) => {
 
         <TouchableOpacity
           onPress={() => addToCart(product)}
-          disabled={isOutOfStock || isAtMax}
-          style={[
-            tw`px-2 py-1 rounded`,
-            isOutOfStock || isAtMax ? tw`bg-gray-300` : tw`bg-[#000080]`,
-          ]}
+          style={[tw`px-2 py-1 rounded bg-[#000080]`]}
         >
           <Text
-            style={tw`font-bold text-xl ${
-              isOutOfStock || isAtMax ? "text-gray-500" : "text-white"
-            }`}
+            style={tw`font-bold text-xl text-white"
+            `}
           >
             +
           </Text>

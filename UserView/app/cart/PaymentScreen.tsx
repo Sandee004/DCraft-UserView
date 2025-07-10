@@ -22,6 +22,34 @@ export default function PaymentScreen() {
   const BACKEND_URL = "https://dcraft-backend.onrender.com";
 
   useEffect(() => {
+    const createOrder = async () => {
+      try {
+        const token = await AsyncStorage.getItem("token");
+        const response = await fetch(`${BACKEND_URL}/api/orders`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          // You can also manually send `items` if needed
+        });
+
+        const result = await response.json();
+        if (!response.ok) {
+          Alert.alert("Error", result.message || "Failed to create order");
+          router.back();
+        }
+      } catch (error) {
+        console.error("Error creating order:", error);
+        Alert.alert("Error", "Could not create order");
+        router.back();
+      }
+    };
+
+    createOrder();
+  }, [router]);
+
+  useEffect(() => {
     const getUserEmail = async () => {
       try {
         const email = await AsyncStorage.getItem("userEmail");
