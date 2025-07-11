@@ -6,9 +6,11 @@ import {
   TextInput,
   ActivityIndicator,
   Image,
+  Alert,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as ImagePicker from "expo-image-picker";
 import tw from "twrnc";
 
 interface User {
@@ -30,6 +32,7 @@ interface ProfileProps {
   address: string;
   setAddress: (val: string) => void;
   profilePic: string | null;
+  setProfilePic: (val: string | null) => void;
   isEditing: boolean;
   setIsEditing: (val: boolean) => void;
   loading: boolean;
@@ -48,6 +51,7 @@ export default function Profile({
   address,
   setAddress,
   profilePic,
+  setProfilePic,
   isEditing,
   setIsEditing,
   loading,
@@ -99,11 +103,81 @@ export default function Profile({
     }
   };
 
+  const handlePickProfileImage = async () => {
+    try {
+      const permissionResult =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (!permissionResult.granted) {
+        Alert.alert("Permission denied", "Camera roll access is required.");
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        quality: 1,
+      });
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const selectedImage = result.assets[0];
+        const uri = selectedImage.uri;
+        const filename = uri.split("/").pop()!;
+        const match = /\.(\w+)$/.exec(filename);
+        const type = match ? `image/${match[1]}` : `image`;
+
+        const formData = new FormData();
+        formData.append("profile_pic", {
+          uri,
+          name: filename,
+          type,
+        } as any);
+
+        const token = await AsyncStorage.getItem("token");
+        if (!token) {
+          Alert.alert("Error", "User not authenticated");
+          return;
+        }
+
+        const response = await fetch(
+          "https://dcraft-backend.onrender.com/api/upload-profile-pic",
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
+            body: formData,
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok && data.profile_pic_url) {
+          setProfilePic(data.profile_pic_url);
+
+          const updatedUser = {
+            ...user,
+            profile_picture: data.profile_pic_url,
+          };
+
+          await AsyncStorage.setItem("user", JSON.stringify(updatedUser));
+          Alert.alert("Success", "Profile picture updated!");
+        } else {
+          console.error("Upload failed:", data.message);
+          Alert.alert("Error", data.message || "Failed to upload image.");
+        }
+      }
+    } catch (error) {
+      console.error("Image upload failed:", error);
+      Alert.alert("Error", "Something went wrong while uploading.");
+    }
+  };
+
   return (
     <View style={tw`flex-1 items-center bg-white justify-start p-4 w-full`}>
       {!isEditing ? (
         <>
-          <TouchableOpacity style={tw`mb-4`}>
+          <View style={tw`mb-4`}>
             <Image
               source={
                 profilePic
@@ -112,16 +186,19 @@ export default function Profile({
               }
               style={tw`h-40 w-40 rounded-full border border-[#000080] border-4`}
             />
-            <View
+
+            <TouchableOpacity
+              onPress={handlePickProfileImage}
               style={tw`absolute bottom-0 right-0 bg-red-500 p-2 rounded-full border-2 border-white`}
+              disabled={loading}
             >
               {loading ? (
                 <ActivityIndicator size="small" color="white" />
               ) : (
                 <FontAwesome name="pencil" size={16} color="white" />
               )}
-            </View>
-          </TouchableOpacity>
+            </TouchableOpacity>
+          </View>
 
           <Text style={tw`text-black text-2xl font-bold mb-1`}>
             {user.username.charAt(0).toUpperCase() + user.username.slice(1)}

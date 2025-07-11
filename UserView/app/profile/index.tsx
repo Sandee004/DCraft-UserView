@@ -42,7 +42,10 @@ export default function ProfileScreen() {
   const [activeTab, setActiveTab] = useState("profile");
   const [orders, setOrders] = useState<Order[]>([]);
   const [ordersLoading, setOrdersLoading] = useState(false);
-  const [profilePic] = useState<string | null>(user?.profile_picture || null);
+  //const [profilePic] = useState<string | null>(user?.profile_picture || null);
+  const [profilePic, setProfilePic] = useState<string | null>(
+    user?.profile_picture || null
+  );
   const { loadUserCart, clearUserCart } = useCart();
 
   useEffect(() => {
@@ -340,6 +343,7 @@ export default function ProfileScreen() {
               address={address}
               setAddress={setAddress}
               profilePic={profilePic}
+              setProfilePic={setProfilePic}
               isEditing={isEditing}
               setIsEditing={setIsEditing}
               loading={loading}
