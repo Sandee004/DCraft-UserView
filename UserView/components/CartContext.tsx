@@ -122,6 +122,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const addToCart = async (product: Product) => {
     const token = await getToken();
+
     if (token) {
       await fetch(BACKEND_URL, {
         method: "POST",
@@ -131,19 +132,20 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
         },
         body: JSON.stringify({ product_id: product.id, quantity: 1 }),
       }).catch((error) => console.error("Error adding to cart:", error));
+
       await loadUserCart();
     } else {
-      setCartItems((prev) => {
-        const existing = prev.find((item) => item.id === product.id);
-        if (existing) {
-          return prev.map((item) =>
-            item.id === product.id
-              ? { ...item, quantity: item.quantity + 1 }
-              : item
-          );
-        }
-        return [...prev, { ...product, quantity: 1 }];
-      });
+      Alert.alert(
+        "Login Required",
+        "Please log in to add items to your cart.",
+        [
+          { text: "Cancel", style: "cancel" },
+          {
+            text: "Login",
+            onPress: () => router.push("/profile"), // or your login screen route
+          },
+        ]
+      );
     }
   };
 
@@ -184,13 +186,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const clearCart = async () => {
-    const token = await getToken();
-    if (token) {
-      await fetch(`${BACKEND_URL}/clear`, {
-        method: "DELETE",
-        headers: { Authorization: `Bearer ${token}` },
-      }).catch((error) => console.error("Error clearing cart:", error));
-    }
     setCartItems([]);
     await AsyncStorage.removeItem("cartItems");
   };

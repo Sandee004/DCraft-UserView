@@ -30,38 +30,41 @@ export default function Orders({ orders, ordersLoading }: OrdersProps) {
             key={order.id}
             style={tw`bg-white border border-gray-200 rounded-lg p-4 mb-3 shadow-sm`}
           >
-            <View style={tw`flex-row justify-between items-start mb-2`}>
-              <Text style={tw`text-lg font-semibold text-black flex-1 mr-2`}>
-                {order.title}
-              </Text>
-              <Text style={tw`text-lg font-bold text-[#000080]`}>
-                ${order.price.toFixed(2)}
-              </Text>
-            </View>
             <View style={tw`flex-row justify-between items-center`}>
-              <Text style={tw`text-gray-600`}>{order.date}</Text>
-              <View
-                style={tw`px-3 py-1 rounded-full ${
-                  order.status === "delivered"
-                    ? "bg-green-100"
-                    : order.status === "shipped"
-                    ? "bg-yellow-100"
-                    : "bg-red-100"
-                }`}
-              >
-                <Text
-                  style={tw`text-sm font-medium ${
-                    order.status === "delivered"
-                      ? "text-green-800"
-                      : order.status === "shipped"
-                      ? "text-yellow-800"
-                      : "text-red-800"
-                  }`}
-                >
-                  {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+              <View style={tw`items-start flex flex-col gap-1 mb-2`}>
+                <Text style={tw`font-semibold text-lg`}>{order.title}</Text>
+                <Text style={tw`text-gray-600`}>
+                  {new Date(order.date).toLocaleDateString()}
                 </Text>
               </View>
+              <View>
+                <View
+                  style={tw`px-3 py-1 rounded-full ${
+                    order.status === "delivered"
+                      ? "bg-green-100"
+                      : order.status === "shipped"
+                      ? "bg-yellow-100"
+                      : "bg-red-100"
+                  }`}
+                >
+                  <Text
+                    style={tw`text-sm font-medium ${
+                      order.status === "delivered"
+                        ? "text-green-800"
+                        : order.status === "shipped"
+                        ? "text-yellow-800"
+                        : "text-red-800"
+                    }`}
+                  >
+                    {order.status.charAt(0).toUpperCase() +
+                      order.status.slice(1)}
+                  </Text>
+                </View>
+              </View>
             </View>
+            <Text style={tw`text-xl font-bold`}>
+              ₦{order.price.toLocaleString()}
+            </Text>
           </View>
         ))
       ) : (

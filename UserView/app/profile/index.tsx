@@ -30,6 +30,7 @@ interface Order {
 }
 
 export default function ProfileScreen() {
+  const [isLogin, setIsLogin] = useState(true);
   const [user, setUser] = useState<User | null>(null);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -66,14 +67,24 @@ export default function ProfileScreen() {
     }
   }, [user, activeTab]);
 
+  useEffect(() => {
+    const initCart = async () => {
+      if (user) {
+        try {
+          await loadUserCart();
+        } catch (error) {
+          console.error("Error loading user cart:", error);
+        }
+      }
+    };
+    initCart();
+  }, [user, loadUserCart]);
+
   const loadOrders = async () => {
     setOrdersLoading(true);
     try {
       const token = await AsyncStorage.getItem("token");
-      if (!token) {
-        console.log("No token found, cannot load orders");
-        return;
-      }
+      if (!token) return;
 
       const response = await fetch(
         "https://dcraft-backend.onrender.com/api/orders",
@@ -87,71 +98,65 @@ export default function ProfileScreen() {
       );
 
       const data = await response.json();
-      console.log("Orders: ", data);
       if (response.ok) {
         setOrders(data.orders || []);
+      } else {
+        console.error("Failed to load orders", data.message);
       }
     } catch (error) {
-      console.error("Failed to load orders", error);
+      console.error("Error fetching orders", error);
     } finally {
       setOrdersLoading(false);
     }
   };
 
-  useEffect(() => {
-    const initCart = async () => {
-      if (user) {
-        try {
-          await loadUserCart(); // Fetch cart items from the backend
-        } catch (error) {
-          console.error("Error loading user cart:", error);
-        }
-      }
-    };
-    initCart();
-  }, [user, loadUserCart]);
-
-  const handleSignUp = async () => {
+  const handleAuth = async () => {
     if (!username || !email) {
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
+
     setLoading(true);
 
     try {
-      const body = JSON.stringify({ username, email, phone: phone || "" });
-      console.log("Request Body:", body);
-
+      const endpoint = isLogin ? "/login" : "/signup";
       const response = await fetch(
-        "https://dcraft-backend.onrender.com/api/auth",
+        `https://dcraft-backend.onrender.com/api${endpoint}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Accept: "application/json",
           },
-          body,
+          body: JSON.stringify({
+            username: username.toLowerCase(),
+            email: email.toLowerCase(),
+            phone,
+          }),
         }
       );
 
       const data = await response.json();
-      console.log("Response Data:", data);
 
       if (response.ok) {
-        await AsyncStorage.setItem(
-          "user",
-          JSON.stringify({ username, email, phone })
-        );
+        const newUser: User = {
+          username: data.user?.username || username,
+          email: data.user?.email || email,
+          phone: data.user?.phone || phone,
+          profile_picture: data.user?.profile_picture || null,
+        };
+
+        await AsyncStorage.setItem("user", JSON.stringify(newUser));
         await AsyncStorage.setItem("token", data.access_token);
-        setUser({ username, email, phone });
+        setUser(newUser);
         await loadUserCart();
-        Alert.alert("Success", data.message || "Signed up successfully");
+
+        Alert.alert("Success", data.message || "Authentication successful");
       } else {
-        Alert.alert("Error", data.message || "Failed to sign up");
+        Alert.alert("Error", data.message || "Authentication failed");
       }
     } catch (error) {
-      console.error("Sign up failed", error);
-      Alert.alert("Error", "Failed to sign up");
+      console.error("Auth failed", error);
+      Alert.alert("Error", "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -162,13 +167,13 @@ export default function ProfileScreen() {
       Alert.alert("Error", "Please fill in all fields");
       return;
     }
+
     setLoading(true);
 
     try {
       const token = await AsyncStorage.getItem("token");
-      console.log(token);
       if (!token) {
-        Alert.alert("Error", "Pls sign up and try again");
+        Alert.alert("Error", "Please log in and try again");
         return;
       }
 
@@ -185,7 +190,6 @@ export default function ProfileScreen() {
       );
 
       const data = await response.json();
-      console.log(data);
       if (response.ok) {
         const updatedUser = { username, email, phone };
         await AsyncStorage.setItem("user", JSON.stringify(updatedUser));
@@ -248,7 +252,7 @@ export default function ProfileScreen() {
     return (
       <View style={tw`flex-1 items-center bg-white p-6`}>
         <Text style={tw`text-black text-2xl font-bold mb-4`}>
-          Sign Up/Login
+          {isLogin ? "Log In" : "Sign Up"}
         </Text>
         <TextInput
           style={tw`w-full bg-white text-black border border-[#000080] px-4 py-3 rounded-md mb-3`}
@@ -276,14 +280,23 @@ export default function ProfileScreen() {
           style={tw`w-full items-center py-3 mt-6 rounded-md ${
             loading ? "bg-gray-400" : "bg-[#000080]"
           }`}
-          onPress={handleSignUp}
+          onPress={handleAuth}
           disabled={loading}
         >
           {loading ? (
             <ActivityIndicator size="small" color="white" />
           ) : (
-            <Text style={tw`text-white text-lg`}>Continue</Text>
+            <Text style={tw`text-white text-lg`}>
+              {isLogin ? "Log In" : "Sign Up"}
+            </Text>
           )}
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setIsLogin(!isLogin)} style={tw`mt-4`}>
+          <Text style={tw`text-blue-600 text-base`}>
+            {isLogin
+              ? "Don't have an account? Sign up"
+              : "Already have an account? Log in"}
+          </Text>
         </TouchableOpacity>
       </View>
     );
@@ -300,7 +313,7 @@ export default function ProfileScreen() {
         <View style={tw`flex-1 items-center`}>
           {activeTab === "profile" ? (
             <Profile
-              user={user!}
+              user={user}
               username={username}
               setUsername={setUsername}
               email={email}
