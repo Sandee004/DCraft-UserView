@@ -15,6 +15,7 @@ interface User {
   username: string;
   email: string;
   phone?: string;
+  address?: string;
   profile_picture?: string;
 }
 
@@ -26,6 +27,8 @@ interface ProfileProps {
   setEmail: (val: string) => void;
   phone: string;
   setPhone: (val: string) => void;
+  address: string;
+  setAddress: (val: string) => void;
   profilePic: string | null;
   isEditing: boolean;
   setIsEditing: (val: boolean) => void;
@@ -42,6 +45,8 @@ export default function Profile({
   setEmail,
   phone,
   setPhone,
+  address,
+  setAddress,
   profilePic,
   isEditing,
   setIsEditing,
@@ -125,6 +130,7 @@ export default function Profile({
           <Text style={tw`text-black text-lg mb-4`}>
             {user.phone || "No phone number"}
           </Text>
+          <Text>{user.address || ""}</Text>
 
           <TouchableOpacity
             style={tw`bg-[#B0E0E6] w-full py-3 rounded-md mb-4`}

@@ -18,6 +18,7 @@ interface User {
   username: string;
   email: string;
   phone?: string;
+  address?: string;
   profile_picture?: string;
 }
 
@@ -35,6 +36,7 @@ export default function ProfileScreen() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("profile");
@@ -131,6 +133,7 @@ export default function ProfileScreen() {
             username: username.toLowerCase(),
             email: email.toLowerCase(),
             phone,
+            ...(isLogin ? {} : { address }), // only include address during sign up
           }),
         }
       );
@@ -142,6 +145,7 @@ export default function ProfileScreen() {
           username: data.user?.username || username,
           email: data.user?.email || email,
           phone: data.user?.phone || phone,
+          address: data.user?.address || address,
           profile_picture: data.user?.profile_picture || null,
         };
 
@@ -276,6 +280,19 @@ export default function ProfileScreen() {
           onChangeText={setPhone}
           keyboardType="phone-pad"
         />
+        {!isLogin && (
+          <TextInput
+            style={tw`w-full bg-white text-black border border-[#000080] px-4 py-3 rounded-md mb-3 h-24 text-top`}
+            placeholder="Address **(please be detailed as this would be used for deliveries)**"
+            placeholderTextColor="gray"
+            value={address}
+            onChangeText={setAddress}
+            multiline
+            numberOfLines={5}
+            textAlignVertical="top"
+          />
+        )}
+
         <TouchableOpacity
           style={tw`w-full items-center py-3 mt-6 rounded-md ${
             loading ? "bg-gray-400" : "bg-[#000080]"
@@ -320,6 +337,8 @@ export default function ProfileScreen() {
               setEmail={setEmail}
               phone={phone}
               setPhone={setPhone}
+              address={address}
+              setAddress={setAddress}
               profilePic={profilePic}
               isEditing={isEditing}
               setIsEditing={setIsEditing}
