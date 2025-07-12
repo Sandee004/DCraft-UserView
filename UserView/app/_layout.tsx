@@ -29,9 +29,10 @@ export default function Layout() {
               tabBarInactiveTintColor: "#F5F5F5",
               tabBarStyle: tw`bg-[#000080]`,
             }}
+            initialRouteName="index"
           >
             <Tabs.Screen
-              name="home"
+              name="index"
               options={{
                 title: "Home",
                 headerShown: false, // keep false to prevent native header
