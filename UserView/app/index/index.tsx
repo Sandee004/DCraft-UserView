@@ -14,6 +14,24 @@ const HomeScreen = () => {
   const [categories, setCategories] = useState<string[]>(["All"]);
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
+  const [storeName, setStoreName] = useState("");
+
+  useEffect(() => {
+    const fetchStoreInfo = async () => {
+      try {
+        const res = await fetch(
+          "https://dcraft-backend.onrender.com/store-info"
+        );
+        const data = await res.json();
+
+        setStoreName(data.store_name || "DCraftHouse");
+      } catch (error) {
+        setStoreName("DCraftHouse");
+      }
+    };
+
+    fetchStoreInfo();
+  }, []);
 
   useEffect(() => {
     const fetchCategories = async () => {
