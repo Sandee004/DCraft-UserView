@@ -91,7 +91,7 @@ const SingleProductScreen: React.FC<{ product: Product }> = ({ product }) => {
             <TouchableOpacity
               onPress={() =>
                 router.push({
-                  pathname: "/home/ProductDetails",
+                  pathname: "/ProductDetails" as any,
                   params: {
                     id: product.id.toString(),
                     title: product.title,
