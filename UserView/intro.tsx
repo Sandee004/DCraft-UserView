@@ -14,12 +14,14 @@ export default function Intro() {
   useEffect(() => {
     const fetchStoreInfo = async () => {
       try {
-        const res = await fetch("http://localhost:5000/store-info");
+        const res = await fetch(
+          "https://dcraft-backend.onrender.com/store-info",
+        );
         const data = await res.json();
 
         setStoreName(data.store_name || "DCraftHouse");
         setStoreDescription(
-          data.store_description || "Where comfort meets style"
+          data.store_description || "Where comfort meets style",
         );
       } catch (error) {
         setStoreName("DCraftHouse");

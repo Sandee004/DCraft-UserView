@@ -17,7 +17,7 @@ interface ProductScreenProps {
   category: string;
 }
 
-const apiUrl = "http://localhost:5000/products";
+const apiUrl = "https://dcraft-backend.onrender.com/products";
 
 const ProductScreen: React.FC<ProductScreenProps> = ({
   searchQuery,

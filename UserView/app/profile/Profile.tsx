@@ -139,7 +139,7 @@ export default function Profile({
         }
 
         const response = await fetch(
-          "http://localhost:5000/api/upload-profile-pic",
+          "https://dcraft-backend.onrender.com/api/upload-profile-pic",
           {
             method: "POST",
             headers: {
@@ -147,7 +147,7 @@ export default function Profile({
               "Content-Type": "multipart/form-data",
             },
             body: formData,
-          }
+          },
         );
 
         const data = await response.json();

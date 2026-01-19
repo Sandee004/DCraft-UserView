@@ -31,7 +31,7 @@ const Skeleton = () => {
           duration: 800,
           useNativeDriver: true,
         }),
-      ])
+      ]),
     ).start();
   }, []);
   return <Animated.View style={[tw`w-full h-full bg-gray-200`, { opacity }]} />;
@@ -69,7 +69,9 @@ export default function ProductDetails() {
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await fetch("http://localhost:5000/products");
+        const response = await fetch(
+          "https://dcraft-backend.onrender.com/products",
+        );
         const data = await response.json();
         const found = data.results.find((p: any) => p.id === Number(id));
 
@@ -101,7 +103,12 @@ export default function ProductDetails() {
         const productImage = Array.isArray(product.product_images)
           ? product.product_images[0]
           : product.product_images;
-        addToCart({ ...product, quantity: 1, title: product.title, product_images: productImage });
+        addToCart({
+          ...product,
+          quantity: 1,
+          title: product.title,
+          product_images: productImage,
+        });
         Alert.alert("Success", "Added to cart!");
       }
     } catch (error) {

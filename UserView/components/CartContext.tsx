@@ -28,7 +28,7 @@ interface CartContextType {
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
-const BACKEND_URL = "http://localhost:5000/api/cart";
+const BACKEND_URL = "https://dcraft-backend.onrender.com/api/cart";
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -38,7 +38,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     AsyncStorage.setItem("cartItems", JSON.stringify(cartItems)).catch(
-      (error) => console.error("Error saving cart items:", error)
+      (error) => console.error("Error saving cart items:", error),
     );
   }, [cartItems]);
 
@@ -111,7 +111,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
             text: "Login",
             onPress: () => router.push("/profile"), // or your login screen route
           },
-        ]
+        ],
       );
     }
   };
@@ -132,9 +132,9 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
       setCartItems((prev) =>
         prev
           .map((item) =>
-            item.id === id ? { ...item, quantity: item.quantity - 1 } : item
+            item.id === id ? { ...item, quantity: item.quantity - 1 } : item,
           )
-          .filter((item) => item.quantity > 0)
+          .filter((item) => item.quantity > 0),
       );
     }
   };

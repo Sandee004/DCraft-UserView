@@ -19,7 +19,9 @@ const HomeScreen = () => {
   useEffect(() => {
     const fetchStoreInfo = async () => {
       try {
-        const res = await fetch("http://localhost:5000/store-info");
+        const res = await fetch(
+          "https://dcraft-backend.onrender.com/store-info",
+        );
         const data = await res.json();
 
         setStoreName(data.store_name || "DCraftHouse");
@@ -34,7 +36,9 @@ const HomeScreen = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch("http://localhost:5000/categories");
+        const res = await fetch(
+          "https://dcraft-backend.onrender.com/categories",
+        );
         const data = await res.json();
         const categoryNames = data.map((cat: { name: string }) => cat.name);
         setCategories(["All", ...categoryNames]);

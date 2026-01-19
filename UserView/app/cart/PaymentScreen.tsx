@@ -19,7 +19,7 @@ export default function PaymentScreen() {
   const [userEmail, setUserEmail] = useState<string>("guest@example.com");
 
   const paystackPublicKey = "pk_test_801d9fcd35867aa5954878e6c700c0543a53c32b"; // Replace with your real one
-  const BACKEND_URL = "http://localhost:5000";
+  const BACKEND_URL = "https://dcraft-backend.onrender.com";
 
   const generateReference = () => {
     return `dcraft_${Date.now()}`;
@@ -87,26 +87,26 @@ export default function PaymentScreen() {
 
       try {
         const response = await fetch(
-          `${BACKEND_URL}/api/verify_payment/${reference}`
+          `${BACKEND_URL}/api/verify_payment/${reference}`,
         );
         const result = await response.json();
 
         if (result.status === "success") {
           Alert.alert(
             "✅ Payment Successful",
-            "Thank you! Your order was confirmed."
+            "Thank you! Your order was confirmed.",
           );
           router.replace("/cart"); // or wherever your cart screen is
         } else {
           Alert.alert(
             "❌ Verification Failed",
-            "We couldn't confirm your payment."
+            "We couldn't confirm your payment.",
           );
         }
       } catch {
         Alert.alert(
           "⚠️ Error",
-          "Something went wrong while verifying the payment."
+          "Something went wrong while verifying the payment.",
         );
       } finally {
         setIsVerifying(false);
