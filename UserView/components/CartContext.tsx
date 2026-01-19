@@ -28,7 +28,7 @@ interface CartContextType {
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
-const BACKEND_URL = "https://dcraft-backend.onrender.com/api/cart";
+const BACKEND_URL = "http://localhost:5000/api/cart";
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
@@ -49,75 +49,42 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   const loadUserCart = useCallback(async () => {
     try {
       const token = await getToken();
-
       if (!token) {
-        const savedCart = await AsyncStorage.getItem("cartItems");
-        if (savedCart) {
-          try {
-            const parsed = JSON.parse(savedCart);
-            if (Array.isArray(parsed)) {
-              setCartItems(parsed);
-            } else {
-              console.warn("Stored cart is not an array:", parsed);
-            }
-          } catch (parseError) {
-            console.error("Failed to parse local cart:", parseError);
-          }
-        }
-        return;
+        /* local storage logic */ return;
       }
 
       const response = await fetch(BACKEND_URL, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
+      const contentType = response.headers.get("content-type");
+
       if (!response.ok) {
-        let errorMessage = "Unknown error";
-
-        try {
+        let msg = "Server Error";
+        if (contentType && contentType.includes("application/json")) {
           const errorData = await response.json();
-          errorMessage = errorData?.message || errorMessage;
-
-          // Handle specific "User not found" error
-          if (errorMessage === "User not found") {
-            Alert.alert(
-              "Login Required",
-              "Your session may have expired. Please log in or sign up to access your cart.",
-              [
-                { text: "Cancel", style: "cancel" },
-                {
-                  text: "Login",
-                  onPress: () => router.push("/profile"),
-                },
-              ]
-            );
-          }
-        } catch {
-          console.warn("Unable to parse error response as JSON.");
+          msg = errorData.message || msg;
         }
-
-        console.warn("Unable to load cart from server:", errorMessage);
+        console.warn("Unable to load cart:", msg);
         return;
       }
 
       const data = await response.json();
 
-      if (data.cart_items && Array.isArray(data.cart_items)) {
+      if (data.cart_items) {
         const mapped = data.cart_items.map((item: any) => ({
           id: item.id,
-          title: item.title,
-          price: item.price,
+          // Match these keys exactly to your Flask jsonify output
+          title: item.title || item.product_name,
+          price: item.price || item.product_price,
           quantity: item.quantity,
           product_images: item.product_images,
         }));
         setCartItems(mapped);
-      } else {
-        console.warn("Unexpected cart_items format from server:", data);
       }
     } catch (error) {
-      console.error("Error loading cart items:", error);
+      console.error("Fetch failed:", error);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const addToCart = async (product: Product) => {

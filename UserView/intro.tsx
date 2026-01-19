@@ -14,9 +14,7 @@ export default function Intro() {
   useEffect(() => {
     const fetchStoreInfo = async () => {
       try {
-        const res = await fetch(
-          "https://dcraft-backend.onrender.com/store-info"
-        );
+        const res = await fetch("http://localhost:5000/store-info");
         const data = await res.json();
 
         setStoreName(data.store_name || "DCraftHouse");

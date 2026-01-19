@@ -91,16 +91,13 @@ export default function ProfileScreen() {
       const token = await AsyncStorage.getItem("token");
       if (!token) return;
 
-      const response = await fetch(
-        "https://dcraft-backend.onrender.com/api/orders",
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch("http://localhost:5000/api/orders", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       const data = await response.json();
       if (response.ok) {
@@ -125,21 +122,18 @@ export default function ProfileScreen() {
 
     try {
       const endpoint = isLogin ? "/login" : "/signup";
-      const response = await fetch(
-        `https://dcraft-backend.onrender.com/api${endpoint}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            username: username.toLowerCase(),
-            email: email.toLowerCase(),
-            phone,
-            ...(isLogin ? {} : { address }), // only include address during sign up
-          }),
-        }
-      );
+      const response = await fetch(`http://localhost:5000/api${endpoint}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          username: username.toLowerCase(),
+          email: email.toLowerCase(),
+          phone,
+          ...(isLogin ? {} : { address }), // only include address during sign up
+        }),
+      });
 
       const data = await response.json();
 
@@ -184,17 +178,14 @@ export default function ProfileScreen() {
         return;
       }
 
-      const response = await fetch(
-        "https://dcraft-backend.onrender.com/api/update",
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ username, email, phone }),
-        }
-      );
+      const response = await fetch("http://localhost:5000/api/update", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ username, email, phone }),
+      });
 
       const data = await response.json();
       if (response.ok) {

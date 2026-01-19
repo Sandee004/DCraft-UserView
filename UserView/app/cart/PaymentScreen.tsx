@@ -19,7 +19,7 @@ export default function PaymentScreen() {
   const [userEmail, setUserEmail] = useState<string>("guest@example.com");
 
   const paystackPublicKey = "pk_test_801d9fcd35867aa5954878e6c700c0543a53c32b"; // Replace with your real one
-  const BACKEND_URL = "https://dcraft-backend.onrender.com";
+  const BACKEND_URL = "http://localhost:5000";
 
   const generateReference = () => {
     return `dcraft_${Date.now()}`;

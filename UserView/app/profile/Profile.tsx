@@ -139,7 +139,7 @@ export default function Profile({
         }
 
         const response = await fetch(
-          "https://dcraft-backend.onrender.com/api/upload-profile-pic",
+          "http://localhost:5000/api/upload-profile-pic",
           {
             method: "POST",
             headers: {
@@ -237,6 +237,10 @@ export default function Profile({
             value={email}
             onChangeText={setEmail}
             placeholder="Email"
+            autoCapitalize="none" // Ensure this is exactly like this
+            autoCorrect={false}
+            spellCheck={false}
+            keyboardType="email-address"
           />
           <TextInput
             style={tw`w-full bg-white text-black border border-[#000080] px-4 py-3 rounded-md mb-3`}

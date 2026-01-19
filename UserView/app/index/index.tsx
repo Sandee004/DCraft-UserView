@@ -19,9 +19,7 @@ const HomeScreen = () => {
   useEffect(() => {
     const fetchStoreInfo = async () => {
       try {
-        const res = await fetch(
-          "https://dcraft-backend.onrender.com/store-info"
-        );
+        const res = await fetch("http://localhost:5000/store-info");
         const data = await res.json();
 
         setStoreName(data.store_name || "DCraftHouse");
@@ -36,9 +34,7 @@ const HomeScreen = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch(
-          "https://dcraft-backend.onrender.com/categories"
-        );
+        const res = await fetch("http://localhost:5000/categories");
         const data = await res.json();
         const categoryNames = data.map((cat: { name: string }) => cat.name);
         setCategories(["All", ...categoryNames]);
@@ -93,9 +89,9 @@ const HomeScreen = () => {
           </ScrollView>
         </View>
 
-        <Text style={tw`text-lg text-gray-600 text-center leading-6`}>
+        {/*<Text style={tw`text-lg text-gray-600 text-center leading-6`}>
           Products
-        </Text>
+        </Text>*/}
 
         {/* Product Display */}
         <ProductScreen searchQuery={searchQuery} category={selectedCategory} />

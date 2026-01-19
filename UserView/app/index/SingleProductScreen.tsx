@@ -1,68 +1,84 @@
-import { View, Text, Image, TouchableOpacity, Alert } from "react-native";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  Alert,
+  Animated,
+} from "react-native";
 import { useRouter } from "expo-router";
 import { useCart } from "../../components/CartContext";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import tw from "twrnc";
 
-interface Product {
-  id: number;
-  title: string;
-  category: string;
-  price: number;
-  product_images?: string;
-  quantity: number;
-}
+// --- SKELETON COMPONENT (Unchanged) ---
+const Skeleton = () => {
+  const opacity = useRef(new Animated.Value(0.3)).current;
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(opacity, {
+          toValue: 0.8,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 0.3,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+      ]),
+    ).start();
+  }, []);
+  return <Animated.View style={[tw`w-full h-full bg-gray-200`, { opacity }]} />;
+};
 
-const SingleProductScreen: React.FC<{ product: Product }> = ({ product }) => {
+const SingleProductScreen: React.FC<{ product: any }> = ({ product }) => {
   const router = useRouter();
   const { addToCart } = useCart();
 
-  const handleAddToCart = async () => {
-    try {
-      // Check if user is logged in
-      const storedUser = await AsyncStorage.getItem("user");
-      const token = await AsyncStorage.getItem("token");
+  // Key fix: Use the image URL as an initial check.
+  // If the image is already cached, some devices fire onLoad immediately.
+  const [isLoaded, setIsLoaded] = useState(false);
 
-      if (!storedUser || !token) {
-        Alert.alert(
-          "Login Required",
-          "You need to be logged in to add items to cart",
-          [
-            {
-              text: "Cancel",
-              style: "cancel",
-            },
-            {
-              text: "Login",
-              onPress: () => router.push("/profile"),
-            },
-          ]
-        );
-        return;
-      }
-
-      // User is logged in, add to cart
-      addToCart(product);
-      console.log("Added to cart");
-    } catch (error) {
-      console.error("Error checking login status:", error);
-      Alert.alert("Error", "Something went wrong. Please try again.");
+  const getOptimizedImage = (imageUrl: any) => {
+    if (!imageUrl) return null;
+    const url = Array.isArray(imageUrl) ? imageUrl[0] : imageUrl;
+    if (typeof url === "string" && url.includes("cloudinary.com")) {
+      return url.replace(
+        "/upload/",
+        "/upload/w_400,c_fill,g_auto,q_auto,f_auto/",
+      );
     }
+    return url;
   };
+
+  const optimizedUri = getOptimizedImage(product.product_images);
 
   return (
     <View style={tw`w-[48%] mb-4`}>
       <View
-        style={tw`bg-white rounded-lg overflow-hidden shadow border border-gray-200 h-[300px]`}
+        style={tw`bg-white rounded-lg overflow-hidden shadow-sm border border-gray-100 h-[310px]`}
       >
-        {/* Image */}
-        <View style={tw`h-3/5 bg-gray-200`}>
-          {product.product_images ? (
-            <Image
-              source={{ uri: product.product_images?.[0] }}
-              style={tw`w-full h-full`}
-              resizeMode="cover"
-            />
+        {/* Image Section */}
+        <View style={tw`h-3/5 bg-gray-50 relative`}>
+          {optimizedUri ? (
+            <>
+              {/* Only show shimmer if isLoaded is FALSE */}
+              {!isLoaded && (
+                <View style={tw`absolute inset-0 z-10`}>
+                  <Skeleton />
+                </View>
+              )}
+              <Image
+                key={optimizedUri} // Force fresh state if URL changes
+                source={{ uri: optimizedUri }}
+                style={tw`w-full h-full`}
+                resizeMode="cover"
+                onLoad={() => setIsLoaded(true)} // This fires as soon as the image is ready
+              />
+            </>
           ) : (
             <View style={tw`flex-1 justify-center items-center bg-gray-100`}>
               <Text style={tw`text-gray-400 text-xs`}>No image</Text>
@@ -70,14 +86,12 @@ const SingleProductScreen: React.FC<{ product: Product }> = ({ product }) => {
           )}
         </View>
 
-        {/* Details */}
+        {/* Product Details Section */}
         <View style={tw`flex-1 px-3 py-2 justify-between`}>
-          {/* Title & Price */}
           <View>
             <Text
               numberOfLines={1}
-              ellipsizeMode="tail"
-              style={tw`font-medium text-black mb-1`}
+              style={tw`font-medium text-black text-[14px] mb-1`}
             >
               {product.title}
             </Text>
@@ -86,7 +100,6 @@ const SingleProductScreen: React.FC<{ product: Product }> = ({ product }) => {
             </Text>
           </View>
 
-          {/* Buttons */}
           <View style={tw`flex-row mt-2 gap-2 items-center`}>
             <TouchableOpacity
               onPress={() =>
@@ -95,22 +108,23 @@ const SingleProductScreen: React.FC<{ product: Product }> = ({ product }) => {
                   params: {
                     id: product.id.toString(),
                     title: product.title,
-                    category: product.category,
                     price: product.price.toString(),
-                    image: product.product_images?.[0] ?? "",
+                    image: optimizedUri ?? "",
                   },
                 })
               }
-              style={tw`flex-1 bg-[#000080] py-2  rounded`}
+              style={tw`flex-1 bg-[#000080] py-2.5 rounded-md`}
             >
-              <Text style={tw`text-white text-center font-medium`}>View</Text>
+              <Text style={tw`text-white text-center font-semibold text-xs`}>
+                View
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={handleAddToCart}
-              style={tw`w-10 bg-[#000080] py-1 rounded justify-center items-center`}
+              onPress={() => addToCart(product)}
+              style={tw`w-10 bg-[#000080] py-1.5 rounded-md justify-center items-center`}
             >
-              <Text style={tw`text-white text-center font-medium text-xl`}>
+              <Text style={tw`text-white text-center font-bold text-xl`}>
                 +
               </Text>
             </TouchableOpacity>
